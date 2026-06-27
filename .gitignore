@@ -1,0 +1,10 @@
+node_modules/
+cloudflared.exe
+tunnel.log
+out.log
+err.log
+server.log
+# Data files (stored on Railway volume, not in git)
+images/
+products.json
+settings.json

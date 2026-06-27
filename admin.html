@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KHERME Admin</title>
+<link rel="manifest" href="/admin-manifest.json"/>
+<meta name="theme-color" content="#185FA5"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="KH Admin"/>
+<link rel="apple-touch-icon" href="/icon-admin.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f4f3ef;min-height:100vh;color:#1a1a1a}
+.topbar{background:#1a1a1a;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:20px;font-weight:600;letter-spacing:3px}
+.topbar-right{display:flex;gap:12px;align-items:center}
+.view-btn{background:#E24B4A;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px}
+.lang-toggle{display:flex;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.3)}
+.lang-btn{padding:5px 10px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:none;color:rgba(255,255,255,0.7);transition:all 0.15s}
+.lang-btn.active{background:#fff;color:#1a1a1a}
+.container{max-width:1000px;margin:0 auto;padding:24px 16px}
+.page-title{font-size:22px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:12px;padding:16px;border:0.5px solid rgba(0,0,0,0.1)}
+.stat-label{font-size:12px;color:#888;margin-bottom:4px}
+.stat-val{font-size:24px;font-weight:600;color:#1a1a1a}
+.card{background:#fff;border-radius:14px;border:0.5px solid rgba(0,0,0,0.1);margin-bottom:20px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:15px;font-weight:600}
+.btn-add{background:#185FA5;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.product-table{width:100%;border-collapse:collapse}
+.product-table th{padding:10px 16px;text-align:left;font-size:12px;color:#888;font-weight:500;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#faf9f7}
+.product-table td{padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,0.06);vertical-align:middle}
+.product-table tr:last-child td{border-bottom:none}
+.product-table tr:hover td{background:#faf9f7}
+.em-cell{font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.prod-name{font-size:14px;font-weight:500}
+.prod-sub{font-size:12px;color:#888;margin-top:2px}
+.price-cell{font-size:14px;font-weight:600;color:#E24B4A}
+.old-price{font-size:11px;color:#aaa;text-decoration:line-through}
+.cat-badge{font-size:11px;padding:3px 8px;border-radius:5px;font-weight:500;background:#E6F1FB;color:#185FA5}
+.hot-badge{font-size:10px;padding:2px 6px;border-radius:4px;background:#FCEBEB;color:#E24B4A;margin-left:4px}
+.action-btns{display:flex;gap:6px}
+.btn-edit{background:none;border:1px solid rgba(0,0,0,0.15);color:#444;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.btn-edit:hover{background:#f0f0f0}
+.btn-del{background:none;border:1px solid rgba(226,75,74,0.3);color:#E24B4A;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.btn-del:hover{background:#FCEBEB}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-bg.hidden{display:none}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:18px 20px;border-bottom:0.5px solid rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-size:16px;font-weight:600}
+.close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:#888;padding:4px}
+.modal-body{padding:20px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
+.form-input{width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;color:#1a1a1a;outline:none;transition:border-color 0.15s;font-family:inherit}
+.form-input:focus{border-color:#185FA5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cat-select{width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;color:#1a1a1a;outline:none;background:#fff;cursor:pointer;font-family:inherit}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.color-opt{width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;transition:border-color 0.15s}
+.color-opt.sel{border-color:#185FA5;box-shadow:0 0 0 2px rgba(24,95,165,0.3)}
+.color-input-wrap{display:flex;align-items:center;gap:8px}
+.color-preview{width:32px;height:32px;border-radius:6px;border:1px solid rgba(0,0,0,0.15)}
+.emoji-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.emoji-opt{width:38px;height:38px;font-size:22px;border-radius:8px;border:2px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#f5f5f5;transition:all 0.15s}
+.emoji-opt.sel{border-color:#185FA5;background:#E6F1FB}
+.toggle-row{display:flex;align-items:center;gap:10px}
+.toggle{width:40px;height:22px;border-radius:11px;background:#ddd;cursor:pointer;position:relative;transition:background 0.2s;border:none;flex-shrink:0}
+.toggle.on{background:#185FA5}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform 0.2s}
+.toggle.on::after{transform:translateX(18px)}
+.modal-footer{padding:16px 20px;border-top:0.5px solid rgba(0,0,0,0.1);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+.btn-cancel{background:none;border:1px solid rgba(0,0,0,0.2);color:#444;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-save{background:#185FA5;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-save:hover{background:#0c447c}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;transition:transform 0.3s;z-index:200;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.img-preview{width:100%;height:140px;object-fit:contain;border-radius:8px;background:#f5f5f5;margin-top:6px;border:1px solid rgba(0,0,0,0.08)}
+.vid-preview{width:100%;height:140px;border-radius:8px;background:#000;margin-top:6px;display:block}
+.img-placeholder{width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:32px;background:#f5f5f5;border-radius:8px;margin-top:6px}
+.upload-drop{border:2px dashed rgba(24,95,165,0.4);border-radius:10px;padding:18px;text-align:center;cursor:pointer;background:#f8fbff;transition:border-color .15s;position:relative}
+.upload-drop:hover,.upload-drop.drag{border-color:#185FA5;background:#E6F1FB}
+.upload-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:28px;color:#185FA5;margin-bottom:6px}
+.upload-hint{font-size:12px;color:#888}
+.upload-progress{height:4px;border-radius:2px;background:#ddd;margin-top:8px;overflow:hidden;display:none}
+.upload-progress-bar{height:100%;background:#185FA5;width:0;transition:width .3s}
+.media-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;max-height:180px;overflow-y:auto}
+.media-thumb{position:relative;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent;aspect-ratio:1}
+.media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover}
+.media-thumb.sel{border-color:#185FA5}
+.media-thumb .del-media{position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:4px;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">KHERME</span>
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="a-kh" onclick="setLang('kh')">ខ្មែរ</button>
+      <button class="lang-btn" id="a-vi" onclick="setLang('vi')">Việt</button>
+    </div>
+    <a class="view-btn" href="/" target="_blank"><i class="ti ti-external-link"></i> <span id="view-shop-lbl">មើលហាង</span></a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-title"><i class="ti ti-layout-dashboard"></i> <span id="page-title-lbl">ផ្ទាំងគ្រប់គ្រង</span></div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label" id="stat1-lbl">ផលិតផលសរុប</div>
+      <div class="stat-val" id="stat-total">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="stat2-lbl">ផលិតផល Hot</div>
+      <div class="stat-val" id="stat-hot">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" id="stat3-lbl">ប្រភេទ</div>
+      <div class="stat-val">4</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS CARD -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-settings" style="font-size:15px;margin-right:6px"></i>ការកំណត់ / Cài đặt</span>
+    </div>
+    <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">ឈ្មោះហាង / Tên shop</label>
+        <input class="form-input" id="s-shopname" placeholder="KHERME" style="width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit"/>
+      </div>
+      <div>
+        <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">
+          <i class="ti ti-brand-telegram" style="color:#26A5E4"></i> Telegram Link
+        </label>
+        <input class="form-input" id="s-telegram" placeholder="https://t.me/yourusername" style="width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit"/>
+      </div>
+    </div>
+    <div style="padding:0 20px 16px;display:flex;align-items:center;gap:12px">
+      <button onclick="saveSettings()" style="background:#26A5E4;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ti ti-device-floppy"></i> <span id="lbl-save-settings">រក្សាទុកការកំណត់</span></button>
+      <span style="font-size:12px;color:#888" id="tg-preview-wrap"></span>
+    </div>
+  </div>
+
+  <!-- PAYMENT CARD -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-qrcode" style="font-size:15px;margin-right:6px"></i>ព័ត៌មានទូទាត់ / Thông tin thanh toán QR</span>
+    </div>
+    <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">ធនាគារ / Ngân hàng</label>
+        <select id="p-bank" style="width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;background:#fff;font-family:inherit">
+          <option value="ABA Bank">🏦 ABA Bank</option>
+          <option value="ACLEDA Bank">🏦 ACLEDA Bank</option>
+          <option value="Wing Bank">🏦 Wing Bank</option>
+          <option value="Canadia Bank">🏦 Canadia Bank</option>
+          <option value="Chip Mong Bank">🏦 Chip Mong Bank</option>
+          <option value="AMK Bank">🏦 AMK Bank</option>
+          <option value="Prince Bank">🏦 Prince Bank</option>
+          <option value="Bakong (KHQR)">🏦 Bakong (KHQR)</option>
+          <option value="Other">🏦 Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">ឈ្មោះអ្នកទទួល / Chủ tài khoản</label>
+        <input class="form-input" id="p-name" placeholder="ឈ្មោះ..." style="width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit"/>
+      </div>
+      <div>
+        <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">លេខគណនី / Số tài khoản</label>
+        <input class="form-input" id="p-account" placeholder="0xx xxx xxx" style="width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit"/>
+      </div>
+      <div>
+        <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">សារណែនាំ / Ghi chú thanh toán</label>
+        <input class="form-input" id="p-note" placeholder="ឧ. KHERME SHOP" style="width:100%;border:1px solid rgba(0,0,0,0.18);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit"/>
+      </div>
+    </div>
+    <!-- QR upload -->
+    <div style="padding:0 20px 20px">
+      <label class="form-label" style="display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">📷 រូបភាព QR Code / Ảnh mã QR</label>
+      <div style="display:flex;gap:16px;align-items:flex-start">
+        <div style="position:relative;border:2px dashed rgba(24,95,165,0.4);border-radius:10px;padding:14px 20px;text-align:center;cursor:pointer;background:#f8fbff;min-width:160px">
+          <input type="file" accept="image/*" onchange="uploadQR(this)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"/>
+          <i class="ti ti-upload" style="font-size:22px;color:#185FA5"></i>
+          <div style="font-size:12px;color:#185FA5;margin-top:4px;font-weight:500">Upload QR Code</div>
+          <div style="font-size:11px;color:#aaa">JPG / PNG</div>
+        </div>
+        <div id="qr-preview-wrap" style="flex:1">
+          <div id="qr-current" style="font-size:12px;color:#aaa">ยังไม่มี QR / Chưa có QR</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 20px 16px;display:flex;align-items:center;gap:12px">
+      <button onclick="savePayment()" style="background:#185FA5;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit"><i class="ti ti-device-floppy"></i> រក្សាទុកព័ត៌មានទូទាត់</button>
+      <span style="font-size:12px;color:#3D9B3D" id="pay-saved-msg"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title" id="prod-list-lbl">បញ្ជីផលិតផល</span>
+      <button class="btn-add" onclick="openAdd()"><i class="ti ti-plus"></i> <span id="add-lbl">បន្ថែមផលិតផល</span></button>
+    </div>
+    <table class="product-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th id="th-name">ឈ្មោះ</th>
+          <th id="th-cat">ប្រភេទ</th>
+          <th id="th-price">តម្លៃ</th>
+          <th id="th-actions">សកម្មភាព</th>
+        </tr>
+      </thead>
+      <tbody id="prod-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg hidden" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">បន្ថែមផលិតផល</span>
+      <button class="close-btn" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- TIKTOK IMPORT -->
+      <div id="tiktok-import-box" style="background:linear-gradient(135deg,#010101 0%,#1a1a2e 100%);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" fill="#fff"/></svg>
+          <span style="color:#fff;font-weight:700;font-size:14px">Import từ TikTok Shop</span>
+          <span style="background:#fe2c55;color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600">TỰ ĐỘNG</span>
+        </div>
+        <div style="display:flex;gap-8px;gap:8px">
+          <input id="tiktok-url" placeholder="Dán link sản phẩm TikTok Shop vào đây..." style="flex:1;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;outline:none;font-family:inherit" oninput="this.style.borderColor=this.value?'#fe2c55':'rgba(255,255,255,0.25)'"/>
+          <button onclick="importFromTikTok()" id="tiktok-import-btn" style="background:#fe2c55;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <span id="tiktok-btn-icon">⚡</span> <span id="tiktok-btn-text">Tải về</span>
+          </button>
+        </div>
+        <div id="tiktok-status" style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.7);display:none"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" id="lbl-name-kh">ឈ្មោះ (ខ្មែរ)</label>
+          <input class="form-input" id="f-kh" placeholder="ឈ្មោះផលិតផលជាភាសាខ្មែរ"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="lbl-name-vi">ឈ្មោះ (Việt)</label>
+          <input class="form-input" id="f-vi" placeholder="Tên sản phẩm tiếng Việt"/>
+        </div>
+      </div>
+
+      <!-- VND → KHR converter -->
+      <div class="form-group" style="margin-bottom:8px">
+        <label class="form-label">💱 Nhập giá VND → tự quy đổi sang ៛</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="position:relative;flex:1">
+            <input class="form-input" id="f-vnd" type="number" placeholder="VND (ví dụ: 100000)" style="padding-right:48px" oninput="vndToKhr()"/>
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#888;font-weight:600">VND</span>
+          </div>
+          <span style="font-size:18px;color:#888">→</span>
+          <div style="background:#FFF7ED;border:1.5px solid #E24B4A;border-radius:10px;padding:8px 14px;min-width:120px;text-align:center">
+            <div style="font-size:10px;color:#888;margin-bottom:2px">Riel (KHR)</div>
+            <div id="vnd-preview" style="font-size:15px;font-weight:700;color:#E24B4A">—</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px">Tỷ giá: 20.000₫ = 4.000៛ (1₫ = 0,2៛)</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" id="lbl-price">តម្លៃ (៛) — hoặc nhập thẳng Riel</label>
+          <input class="form-input" id="f-price" type="number" placeholder="ឧ. 150000" oninput="khrToVnd()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="lbl-old-price">តម្លៃចាស់ (0 = គ្មាន)</label>
+          <input class="form-input" id="f-old" type="number" placeholder="0"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lbl-cat">ប្រភេទ</label>
+        <select class="cat-select" id="f-cat">
+          <option value="1" id="cat1-opt">ស្រី</option>
+          <option value="2" id="cat2-opt">បុរស</option>
+          <option value="3" id="cat3-opt">កុមារ</option>
+          <option value="4" id="cat4-opt">ថ្មី</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lbl-img">រូបភាព / វីដេអូ ផលិតផល</label>
+        <!-- Upload drop zone -->
+        <div class="upload-drop" id="upload-drop">
+          <input type="file" id="f-file" accept="image/*,video/*" multiple onchange="handleFileSelect(this)"/>
+          <div class="upload-icon"><i class="ti ti-cloud-upload"></i></div>
+          <div style="font-size:13px;font-weight:500;color:#185FA5" id="upload-lbl-main">ចុចឬអូសឯកសារ / Bấm hoặc kéo thả</div>
+          <div class="upload-hint" id="upload-lbl-hint"> រូបភាព: JPG, PNG, WebP, GIF · វីដេអូ: MP4, WebM (≤50MB)</div>
+          <div class="upload-progress" id="upload-progress"><div class="upload-progress-bar" id="upload-bar"></div></div>
+        </div>
+        <!-- Preview current media -->
+        <div id="img-preview-wrap" style="margin-top:8px"></div>
+        <!-- OR enter URL manually -->
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px">
+          <div style="flex:1;height:1px;background:rgba(0,0,0,0.1)"></div>
+          <span style="font-size:11px;color:#aaa" id="or-lbl">ឬដាក់ URL</span>
+          <div style="flex:1;height:1px;background:rgba(0,0,0,0.1)"></div>
+        </div>
+        <input class="form-input" id="f-img" placeholder="https://..." oninput="previewImg()" style="font-size:12px"/>
+      </div>
+
+      <!-- Gallery of uploaded images -->
+      <div class="form-group" id="gallery-wrap">
+        <label class="form-label" id="lbl-gallery">ជ្រើសពី Media ដែលបានអាប់ឡូដ</label>
+        <div class="media-gallery" id="media-gallery"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lbl-emoji">Emoji (ប្រើពេលគ្មានរូប)</label>
+        <div class="emoji-grid" id="emoji-grid"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lbl-color">ពណ៌ស្នាម</label>
+        <div class="color-input-wrap">
+          <div class="color-preview" id="color-preview" style="background:#5B8DB8"></div>
+          <input type="color" id="f-color" value="#5B8DB8" oninput="document.getElementById('color-preview').style.background=this.value" style="width:60px;height:32px;border:none;cursor:pointer;border-radius:6px"/>
+          <span style="font-size:12px;color:#888" id="lbl-color-hint">ពណ៌배景</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lbl-hot">Flash Sale / Hot</label>
+        <div class="toggle-row">
+          <button class="toggle" id="f-hot" onclick="toggleHot()"></button>
+          <span style="font-size:13px;color:#888" id="hot-status">បិទ</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()" id="btn-cancel-lbl">បោះបង់</button>
+      <button class="btn-save" onclick="saveProduct()" id="btn-save-lbl">រក្សាទុក</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EMOJIS = ['👕','👗','👖','🧥','👙','🧣','🧤','🧦','👔','🥻','🩱','🩲','🩳','🧒','👶'];
+const CATS = { kh:['','ស្រី','បុរស','កុមារ','ថ្មី'], vi:['','Nữ','Nam','Trẻ em','Mới'] };
+
+const T = {
+  viewShop:    { kh:'មើលហាង',          vi:'Xem shop' },
+  pageTitle:   { kh:'ផ្ទាំងគ្រប់គ្រង', vi:'Bảng quản trị' },
+  stat1:       { kh:'ផលិតផលសរុប',      vi:'Tổng sản phẩm' },
+  stat2:       { kh:'ផលិតផល Hot',       vi:'Sản phẩm Hot' },
+  stat3:       { kh:'ប្រភេទ',            vi:'Danh mục' },
+  prodList:    { kh:'បញ្ជីផលិតផល',     vi:'Danh sách sản phẩm' },
+  addBtn:      { kh:'បន្ថែមផលិតផល',    vi:'Thêm sản phẩm' },
+  thName:      { kh:'ឈ្មោះ',             vi:'Tên' },
+  thCat:       { kh:'ប្រភេទ',            vi:'Danh mục' },
+  thPrice:     { kh:'តម្លៃ',             vi:'Giá' },
+  thActions:   { kh:'សកម្មភាព',         vi:'Thao tác' },
+  addTitle:    { kh:'បន្ថែមផលិតផល',    vi:'Thêm sản phẩm' },
+  editTitle:   { kh:'កែប្រែផលិតផល',    vi:'Chỉnh sửa sản phẩm' },
+  nameKh:      { kh:'ឈ្មោះ (ខ្មែរ)',    vi:'Tên (Khmer)' },
+  nameVi:      { kh:'ឈ្មោះ (Việt)',     vi:'Tên (Việt)' },
+  priceL:      { kh:'តម្លៃ (៛)',         vi:'Giá (៛)' },
+  oldL:        { kh:'តម្លៃចាស់',        vi:'Giá cũ (0=không)' },
+  catL:        { kh:'ប្រភេទ',            vi:'Danh mục' },
+  imgL:        { kh:'URL រូបភាព',       vi:'URL hình ảnh' },
+  emojiL:      { kh:'Emoji',             vi:'Emoji' },
+  colorL:      { kh:'ពណ៌ស្នាម',         vi:'Màu nền' },
+  hotL:        { kh:'Flash Sale / Hot', vi:'Flash Sale / Hot' },
+  hotOn:       { kh:'បើក 🔥',           vi:'Bật 🔥' },
+  hotOff:      { kh:'បិទ',               vi:'Tắt' },
+  cancel:      { kh:'បោះបង់',           vi:'Hủy' },
+  save:        { kh:'រក្សាទុក',          vi:'Lưu' },
+  editBtn:     { kh:'កែ',               vi:'Sửa' },
+  delBtn:      { kh:'លុប',              vi:'Xóa' },
+  saved:       { kh:'✓ បានរក្សាទុករួចហើយ', vi:'✓ Đã lưu thành công' },
+  deleted:     { kh:'✓ បានលុបរួចហើយ',  vi:'✓ Đã xóa' },
+  confirmDel:  { kh:'លុបផលិតផលនេះ?',   vi:'Xóa sản phẩm này?' },
+};
+
+let lang = 'kh';
+let products = [];
+let settings = { telegram: '', shopName: 'KHERME' };
+let editId = null;
+let hotOn = false;
+let selEmoji = '👕';
+
+async function loadAll() {
+  try { const r = await fetch('/api/products'); products = await r.json(); } catch(e) { products=[]; }
+  try { const r = await fetch('/api/settings'); settings = await r.json(); } catch(e) {}
+  document.getElementById('s-telegram').value = settings.telegram || '';
+  document.getElementById('s-shopname').value = settings.shopName || 'KHERME';
+  // Load payment info
+  const pay = settings.payment || {};
+  if (pay.bank) document.getElementById('p-bank').value = pay.bank;
+  document.getElementById('p-name').value = pay.name || '';
+  document.getElementById('p-account').value = pay.account || '';
+  document.getElementById('p-note').value = pay.note || '';
+  renderQRPreview();
+  renderTgPreview();
+  renderTable();
+  updateStats();
+}
+
+async function saveSettings() {
+  settings.telegram = document.getElementById('s-telegram').value.trim();
+  settings.shopName = document.getElementById('s-shopname').value.trim() || 'KHERME';
+  await fetch('/api/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(settings) });
+  renderTgPreview();
+  showToast(lang==='kh'?'✓ បានរក្សាទុក':'✓ Đã lưu cài đặt');
+}
+
+async function savePayment() {
+  if (!settings.payment) settings.payment = {};
+  settings.payment.bank = document.getElementById('p-bank').value;
+  settings.payment.name = document.getElementById('p-name').value.trim();
+  settings.payment.account = document.getElementById('p-account').value.trim();
+  settings.payment.note = document.getElementById('p-note').value.trim();
+  await fetch('/api/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(settings) });
+  const msg = document.getElementById('pay-saved-msg');
+  msg.textContent = '✓ ' + (lang==='kh'?'បានរក្សាទុក':'Đã lưu');
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+async function uploadQR(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const res = await fetch('/api/upload', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:'qr_'+file.name, data:e.target.result, type:file.type}) });
+    const json = await res.json();
+    if (json.url) {
+      if (!settings.payment) settings.payment = {};
+      settings.payment.qr = json.url;
+      renderQRPreview();
+      showToast('✓ Upload QR OK!');
+    }
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function renderQRPreview() {
+  const qr = (settings.payment||{}).qr;
+  const wrap = document.getElementById('qr-current');
+  if (qr) {
+    wrap.innerHTML = `<img src="${qr}" style="width:120px;height:120px;object-fit:contain;border-radius:8px;border:1px solid rgba(0,0,0,0.1);background:#fff;padding:4px"/> <div style="font-size:11px;color:#3D9B3D;margin-top:4px">✓ QR បានដំឡើង</div>`;
+  } else {
+    wrap.innerHTML = '<span style="font-size:12px;color:#aaa">⚠ មិនទាន់មាន QR / Chưa có QR</span>';
+  }
+}
+
+function renderTgPreview() {
+  const tg = settings.telegram;
+  const el = document.getElementById('tg-preview-wrap');
+  if (tg) el.innerHTML = `<a href="${tg}" target="_blank" style="color:#26A5E4;display:flex;align-items:center;gap:4px"><i class="ti ti-brand-telegram"></i> ${tg}</a>`;
+  else el.innerHTML = lang==='kh'?'⚠ មិនទាន់ដាក់ link Telegram':'⚠ Chưa đặt link Telegram';
+}
+
+async function saveAll() {
+  await fetch('/api/products', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(products)
+  });
+}
+
+function t(k) { return T[k][lang]; }
+function fmt(n) { return parseInt(n).toLocaleString() + '៛'; }
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('a-kh').classList.toggle('active', l==='kh');
+  document.getElementById('a-vi').classList.toggle('active', l==='vi');
+  document.getElementById('view-shop-lbl').textContent = t('viewShop');
+  document.getElementById('page-title-lbl').textContent = t('pageTitle');
+  document.getElementById('stat1-lbl').textContent = t('stat1');
+  document.getElementById('stat2-lbl').textContent = t('stat2');
+  document.getElementById('prod-list-lbl').textContent = t('prodList');
+  document.getElementById('add-lbl').textContent = t('addBtn');
+  document.getElementById('th-name').textContent = t('thName');
+  document.getElementById('th-cat').textContent = t('thCat');
+  document.getElementById('th-price').textContent = t('thPrice');
+  document.getElementById('th-actions').textContent = t('thActions');
+  document.getElementById('lbl-name-kh').textContent = t('nameKh');
+  document.getElementById('lbl-name-vi').textContent = t('nameVi');
+  document.getElementById('lbl-price').textContent = t('priceL');
+  document.getElementById('lbl-old-price').textContent = t('oldL');
+  document.getElementById('lbl-cat').textContent = t('catL');
+  document.getElementById('lbl-img').textContent = t('imgL');
+  document.getElementById('lbl-emoji').textContent = t('emojiL');
+  document.getElementById('lbl-color').textContent = t('colorL');
+  document.getElementById('lbl-hot').textContent = t('hotL');
+  document.getElementById('btn-cancel-lbl').textContent = t('cancel');
+  document.getElementById('btn-save-lbl').textContent = t('save');
+  document.getElementById('cat1-opt').textContent = CATS[l][1];
+  document.getElementById('cat2-opt').textContent = CATS[l][2];
+  document.getElementById('cat3-opt').textContent = CATS[l][3];
+  document.getElementById('cat4-opt').textContent = CATS[l][4];
+  renderTable();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = products.length;
+  document.getElementById('stat-hot').textContent = products.filter(p=>p.hot).length;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('prod-tbody');
+  if (!products.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#aaa">${lang==='kh'?'មិនមានផលិតផល':'Chưa có sản phẩm'}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = products.map((p,i) => `
+    <tr>
+      <td>
+        <div class="em-cell" style="background:${p.clr}22">
+          ${p.img ? `<img src="${p.img}" style="width:40px;height:40px;object-fit:cover;border-radius:6px"/>` : p.em}
+        </div>
+      </td>
+      <td>
+        <div class="prod-name">${lang==='kh'?p.kh:p.vi}</div>
+        <div class="prod-sub">${lang==='kh'?p.vi:p.kh}</div>
+      </td>
+      <td><span class="cat-badge">${CATS[lang][p.cat]||'?'}</span>${p.hot?`<span class="hot-badge">HOT</span>`:''}</td>
+      <td>
+        <div class="price-cell">${fmt(p.price)}</div>
+        ${p.old?`<div class="old-price">${fmt(p.old)}</div>`:''}
+      </td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-edit" onclick="openEdit(${i})"><i class="ti ti-edit" style="font-size:13px"></i> ${t('editBtn')}</button>
+          <button class="btn-del" onclick="deleteProduct(${i})"><i class="ti ti-trash" style="font-size:13px"></i> ${t('delBtn')}</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderEmojis() {
+  document.getElementById('emoji-grid').innerHTML = EMOJIS.map(e =>
+    `<div class="emoji-opt ${selEmoji===e?'sel':''}" onclick="pickEmoji('${e}')">${e}</div>`
+  ).join('');
+}
+
+function pickEmoji(e) { selEmoji = e; renderEmojis(); }
+
+function toggleHot() {
+  hotOn = !hotOn;
+  const btn = document.getElementById('f-hot');
+  btn.classList.toggle('on', hotOn);
+  document.getElementById('hot-status').textContent = hotOn ? t('hotOn') : t('hotOff');
+}
+
+function openAdd() {
+  editId = null;
+  hotOn = false;
+  selEmoji = '👕';
+  document.getElementById('modal-title').textContent = t('addTitle');
+  document.getElementById('f-kh').value = '';
+  document.getElementById('f-vi').value = '';
+  document.getElementById('f-price').value = '';
+  document.getElementById('f-old').value = '0';
+  document.getElementById('f-cat').value = '1';
+  document.getElementById('f-img').value = '';
+  document.getElementById('f-color').value = '#5B8DB8';
+  document.getElementById('color-preview').style.background = '#5B8DB8';
+  document.getElementById('f-hot').classList.remove('on');
+  document.getElementById('hot-status').textContent = t('hotOff');
+  prodMedia = [];
+  renderProdMedia();
+  renderEmojis();
+  document.getElementById('modal').classList.remove('hidden');
+  loadGallery();
+}
+
+function openEdit(i) {
+  const p = products[i];
+  editId = i;
+  hotOn = p.hot;
+  selEmoji = p.em || '👕';
+  document.getElementById('modal-title').textContent = t('editTitle');
+  document.getElementById('f-kh').value = p.kh;
+  document.getElementById('f-vi').value = p.vi;
+  document.getElementById('f-price').value = p.price;
+  document.getElementById('f-old').value = p.old || 0;
+  document.getElementById('f-cat').value = p.cat;
+  document.getElementById('f-img').value = p.img || '';
+  document.getElementById('f-color').value = p.clr || '#5B8DB8';
+  document.getElementById('color-preview').style.background = p.clr || '#5B8DB8';
+  document.getElementById('f-hot').classList.toggle('on', hotOn);
+  document.getElementById('hot-status').textContent = hotOn ? t('hotOn') : t('hotOff');
+  // Load existing media array
+  prodMedia = p.media && p.media.length ? [...p.media] : (p.img ? [p.img] : []);
+  renderProdMedia();
+  renderEmojis();
+  document.getElementById('modal').classList.remove('hidden');
+  loadGallery();
+}
+
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+function previewImg() {
+  const url = document.getElementById('f-img').value.trim();
+  const wrap = document.getElementById('img-preview-wrap');
+  if (!url) { wrap.innerHTML = ''; return; }
+  const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+  if (isVideo) {
+    wrap.innerHTML = `<video src="${url}" class="vid-preview" controls muted></video>`;
+  } else {
+    wrap.innerHTML = `<img src="${url}" class="img-preview" onerror="this.style.display='none'"/>`;
+  }
+}
+
+function setMediaUrl(url) {
+  document.getElementById('f-img').value = url;
+  previewImg();
+  // highlight selected thumb
+  document.querySelectorAll('.media-thumb').forEach(t => t.classList.toggle('sel', t.dataset.url === url));
+}
+
+// ── Binary XHR upload — supports images AND large video files ──
+function handleFileSelect(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const MAX = 200 * 1024 * 1024; // 200MB per file
+  files.forEach(file => {
+    if (file.size > MAX) { showToast((lang==='kh'?'ឯកសារធំពេក! ':'File quá lớn! ') + file.name); return; }
+    uploadFileBinary(file);
+  });
+  input.value = '';
+}
+
+function uploadFileBinary(file) {
+  const progress = document.getElementById('upload-progress');
+  const bar = document.getElementById('upload-bar');
+  progress.style.display = 'block';
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/upload?name=' + encodeURIComponent(file.name));
+  xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+
+  xhr.upload.onprogress = e => {
+    if (e.lengthComputable) bar.style.width = Math.round(e.loaded/e.total*90)+'%';
+  };
+  xhr.onload = () => {
+    bar.style.width = '100%';
+    setTimeout(() => { progress.style.display='none'; bar.style.width='0'; }, 600);
+    try {
+      const json = JSON.parse(xhr.responseText);
+      if (json.url) {
+        addMediaUrl(json.url);
+        showToast(lang==='kh'?'✓ Upload បានជោគជ័យ!':'✓ Upload thành công!');
+        loadGallery();
+      }
+    } catch(e) { showToast('Upload error: '+xhr.status); }
+  };
+  xhr.onerror = () => { progress.style.display='none'; showToast(lang==='kh'?'Upload បរាជ័យ!':'Upload thất bại!'); };
+  xhr.send(file);
+}
+
+// ── Multiple media per product ──
+let prodMedia = []; // array of URLs for current product
+
+function addMediaUrl(url) {
+  if (!prodMedia.includes(url)) { prodMedia.push(url); }
+  renderProdMedia();
+  // keep f-img as first for backward compat
+  document.getElementById('f-img').value = prodMedia[0] || '';
+}
+
+function removeMedia(i) {
+  prodMedia.splice(i, 1);
+  renderProdMedia();
+  document.getElementById('f-img').value = prodMedia[0] || '';
+}
+
+function renderProdMedia() {
+  const wrap = document.getElementById('img-preview-wrap');
+  if (!prodMedia.length) { wrap.innerHTML=''; return; }
+  wrap.innerHTML = `
+    <div style="margin-top:8px">
+      <div style="font-size:11px;color:#888;margin-bottom:6px;font-weight:500">${lang==='kh'?'រូប/វីដេអូសម្រាប់ផលិតផលនេះ':'Ảnh/Video của sản phẩm này'} (${prodMedia.length})</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${prodMedia.map((url,i)=>{
+          const isVid=/\.(mp4|webm|mov)$/i.test(url);
+          const preview = isVid
+            ? `<video src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"></video>`
+            : `<img src="${url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px"/>`;
+          const star = i===0?'<span style="position:absolute;top:2px;left:2px;background:#185FA5;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px">★</span>':'';
+          return `<div style="position:relative;display:inline-block">${preview}${star}<button onclick="removeMedia(${i})" style="position:absolute;top:2px;right:2px;background:rgba(226,75,74,0.9);color:#fff;border:none;border-radius:4px;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button></div>`;
+        }).join('')}
+      </div>
+      <div style="font-size:10px;color:#aaa;margin-top:4px">${lang==='kh'?'★ = ដំបូង (cover). ចុច × ដើម្បីលុប':'★ = ảnh đầu (cover). Bấm × để xóa'}</div>
+    </div>`;
+}
+
+function setMediaUrl(url) {
+  if (!prodMedia.includes(url)) addMediaUrl(url);
+  document.querySelectorAll('.media-thumb').forEach(t => t.classList.toggle('sel', t.dataset.url === url));
+}
+
+async function loadGallery() {
+  try {
+    const r = await fetch('/api/images');
+    const files = await r.json();
+    const gallery = document.getElementById('media-gallery');
+    if (!files.length) {
+      gallery.innerHTML = `<div style="font-size:12px;color:#aaa;padding:8px;grid-column:1/-1">${lang==='kh'?'មិនទាន់មានរូប':'Chưa có media'}</div>`;
+      return;
+    }
+    gallery.innerHTML = files.reverse().map(f => {
+      const isVid = /\.(mp4|webm|mov)$/i.test(f.url);
+      const isSel = prodMedia.includes(f.url);
+      const media = isVid
+        ? `<video src="${f.url}" style="width:100%;height:100%;object-fit:cover"></video>`
+        : `<img src="${f.url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"/>`;
+      return `<div class="media-thumb ${isSel?'sel':''}" data-url="${f.url}" onclick="setMediaUrl('${f.url}')">${media}
+        <span style="position:absolute;bottom:2px;left:2px;font-size:9px;background:rgba(0,0,0,0.5);color:#fff;padding:1px 4px;border-radius:3px">${isVid?'▶':'🖼'}</span>
+        ${isSel?'<span style="position:absolute;top:2px;right:2px;background:#185FA5;color:#fff;font-size:9px;padding:1px 4px;border-radius:3px">✓</span>':''}
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+function saveProduct() {
+  const kh = document.getElementById('f-kh').value.trim();
+  const vi = document.getElementById('f-vi').value.trim();
+  const price = parseInt(document.getElementById('f-price').value) || 0;
+  if (!kh || !vi || !price) { showToast(lang==='kh'?'សូមបំពេញព័ត៌មានឱ្យបរិបូរណ៍!':'Vui lòng điền đầy đủ!'); return; }
+  // Also add manually-typed URL if any and not already in list
+  const manualUrl = document.getElementById('f-img').value.trim();
+  if (manualUrl && !prodMedia.includes(manualUrl)) prodMedia.unshift(manualUrl);
+  const prod = {
+    id: editId !== null ? products[editId].id : Date.now(),
+    cat: parseInt(document.getElementById('f-cat').value),
+    kh, vi, price,
+    old: parseInt(document.getElementById('f-old').value) || 0,
+    clr: document.getElementById('f-color').value,
+    em: selEmoji,
+    hot: hotOn,
+    img: prodMedia[0] || '',      // first image for backward compat
+    media: [...prodMedia],        // all images/videos
+  };
+  if (editId !== null) products[editId] = prod;
+  else products.push(prod);
+  saveAll();
+  renderTable();
+  updateStats();
+  closeModal();
+  showToast(t('saved'));
+}
+
+async function deleteProduct(i) {
+  if (!confirm(t('confirmDel'))) return;
+  products.splice(i, 1);
+  await saveAll();
+  renderTable();
+  updateStats();
+  showToast(t('deleted'));
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ===== TIKTOK IMPORT =====
+async function importFromTikTok() {
+  const tkUrl = document.getElementById('tiktok-url').value.trim();
+  if (!tkUrl) { showToast('Vui lòng dán link TikTok Shop!'); return; }
+  if (!tkUrl.startsWith('http')) { showToast('Link không hợp lệ!'); return; }
+
+  const btn = document.getElementById('tiktok-import-btn');
+  const btnIcon = document.getElementById('tiktok-btn-icon');
+  const btnText = document.getElementById('tiktok-btn-text');
+  const status = document.getElementById('tiktok-status');
+
+  btn.disabled = true;
+  btnIcon.textContent = '⏳';
+  btnText.textContent = 'Đang tải...';
+  status.style.display = 'block';
+  status.textContent = '🔍 Đang truy cập trang sản phẩm...';
+
+  try {
+    const res = await fetch('/api/import-tiktok', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({url: tkUrl})
+    });
+    const data = await res.json();
+
+    if (!data.ok) {
+      status.style.color = '#ff6b6b';
+      status.textContent = '❌ ' + (data.error || 'Không lấy được thông tin. Thử link khác!');
+      return;
+    }
+
+    status.textContent = '✅ Đã lấy được thông tin! Đang điền vào form...';
+
+    // Điền tên sản phẩm
+    if (data.title_kh) document.getElementById('f-kh').value = data.title_kh;
+    if (data.title_vi) document.getElementById('f-vi').value = data.title_vi;
+
+    // Điền giá
+    if (data.price_khr > 0) {
+      document.getElementById('f-price').value = data.price_khr;
+      if (data.price_vnd > 0) document.getElementById('f-vnd').value = data.price_vnd;
+      document.getElementById('vnd-preview').textContent = parseInt(data.price_khr).toLocaleString() + ' ៛';
+    }
+
+    // Điền ảnh/media
+    if (data.media && data.media.length > 0) {
+      prodMedia = [...data.media];
+      loadGallery();
+      status.textContent = `✅ Xong! Đã import ${data.media.length} ảnh + dịch sang Khmer tự động 🎉`;
+    } else {
+      status.textContent = '⚠️ Import một phần (không lấy được ảnh). Vui lòng tải ảnh thủ công.';
+    }
+
+    // Reset URL input
+    document.getElementById('tiktok-url').value = '';
+    document.getElementById('tiktok-url').style.borderColor = 'rgba(255,255,255,0.25)';
+
+  } catch(e) {
+    status.style.color = '#ff6b6b';
+    status.textContent = '❌ Lỗi kết nối. Thử lại!';
+  } finally {
+    btn.disabled = false;
+    btnIcon.textContent = '⚡';
+    btnText.textContent = 'Tải về';
+  }
+}
+
+// ===== VND ↔ KHR CONVERTER =====
+// Rate: 20,000 VND = 4,000 KHR → 1 VND = 0.2 KHR
+const VND_TO_KHR = 0.2;
+
+function vndToKhr() {
+  const vnd = parseFloat(document.getElementById('f-vnd').value) || 0;
+  const khr = Math.round(vnd * VND_TO_KHR);
+  const prev = document.getElementById('vnd-preview');
+  if (vnd > 0) {
+    prev.textContent = parseInt(khr).toLocaleString() + ' ៛';
+    document.getElementById('f-price').value = khr;
+  } else {
+    prev.textContent = '—';
+    document.getElementById('f-price').value = '';
+  }
+}
+
+function khrToVnd() {
+  const khr = parseFloat(document.getElementById('f-price').value) || 0;
+  const vnd = Math.round(khr / VND_TO_KHR);
+  const prev = document.getElementById('vnd-preview');
+  if (khr > 0) {
+    prev.textContent = parseInt(khr).toLocaleString() + ' ៛';
+    document.getElementById('f-vnd').value = vnd > 0 ? vnd : '';
+  } else {
+    prev.textContent = '—';
+    document.getElementById('f-vnd').value = '';
+  }
+}
+
+// Clear VND field when modal opens
+const _origOpenNew = openNew;
+openNew = function() { _origOpenNew(); document.getElementById('f-vnd').value=''; document.getElementById('vnd-preview').textContent='—'; };
+const _origOpenEdit = openEdit;
+openEdit = function(p) { _origOpenEdit(p); const vnd = Math.round((p.price||0)/VND_TO_KHR); document.getElementById('f-vnd').value = vnd||''; document.getElementById('vnd-preview').textContent = p.price ? parseInt(p.price).toLocaleString()+' ៛' : '—'; };
+
+setLang('kh');
+loadAll();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+
+// ===== PWA INSTALL (Admin) =====
+let _deferredPromptAdmin = null;
+const isIOSAdmin = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandaloneAdmin = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+if (!isStandaloneAdmin) {
+  // Inject install button into topbar
+  const topbarRight = document.querySelector('.topbar-right');
+  if (topbarRight) {
+    const btn = document.createElement('button');
+    btn.id = 'admin-install-btn';
+    btn.textContent = '📲 Cài App';
+    btn.style.cssText = 'display:none;background:#2ecc71;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;align-items:center;gap:5px';
+    btn.onclick = doAdminInstall;
+    topbarRight.insertBefore(btn, topbarRight.firstChild);
+  }
+
+  // iOS install modal
+  const modal = document.createElement('div');
+  modal.id = 'admin-ios-modal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding:20px 20px 36px">
+    <div style="width:40px;height:4px;border-radius:2px;background:#ddd;margin:0 auto 16px"></div>
+    <div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:4px">📲 Cài KH Admin về điện thoại</div>
+    <div style="font-size:12px;color:#888;text-align:center;margin-bottom:18px">Mở bằng Safari, làm theo 3 bước:</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid rgba(0,0,0,0.08)"><div style="width:28px;height:28px;border-radius:50%;background:#185FA5;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div><div style="font-size:13px;color:#333">Nhấn nút <b>Chia sẻ ⬆️</b> ở thanh dưới màn hình</div></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid rgba(0,0,0,0.08)"><div style="width:28px;height:28px;border-radius:50%;background:#185FA5;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div><div style="font-size:13px;color:#333">Chọn <b>"Thêm vào màn hình chính"</b></div></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0"><div style="width:28px;height:28px;border-radius:50%;background:#185FA5;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div><div style="font-size:13px;color:#333">Nhấn <b>Thêm</b> — icon KH Admin xuất hiện trên màn hình</div></div>
+    <button onclick="document.getElementById('admin-ios-modal').style.display='none'" style="width:100%;margin-top:16px;background:#f0f0f0;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Đã hiểu ✓</button>
+  </div>`;
+  modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+  document.body.appendChild(modal);
+
+  function showAdminInstallBtn() {
+    const b = document.getElementById('admin-install-btn');
+    if (b) b.style.display = 'flex';
+  }
+
+  async function doAdminInstall() {
+    if (isIOSAdmin) {
+      document.getElementById('admin-ios-modal').style.display = 'flex';
+      return;
+    }
+    if (_deferredPromptAdmin) {
+      _deferredPromptAdmin.prompt();
+      const { outcome } = await _deferredPromptAdmin.userChoice;
+      _deferredPromptAdmin = null;
+      if (outcome === 'accepted') {
+        const b = document.getElementById('admin-install-btn');
+        if (b) b.style.display = 'none';
+      }
+    }
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    _deferredPromptAdmin = e;
+    showAdminInstallBtn();
+  });
+  window.addEventListener('appinstalled', () => {
+    const b = document.getElementById('admin-install-btn');
+    if (b) b.style.display = 'none';
+  });
+  if (isIOSAdmin) showAdminInstallBtn();
+}
+</script>
+</body>
+</html>

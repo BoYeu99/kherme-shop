@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KHERME — Fashion Shop</title>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#E24B4A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="KHERME"/>
+<link rel="apple-touch-icon" href="/icon-shop.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f4f3ef;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px 0 60px}
+.phone{width:390px;min-height:700px;background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden;position:relative}
+.status-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 6px;font-size:12px;font-weight:500;color:#1a1a1a;background:#fff}
+.screen{display:none}.screen.active{display:block}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:.5px solid rgba(0,0,0,0.1);background:#fff;position:sticky;top:0;z-index:10}
+.brand{font-size:20px;font-weight:600;letter-spacing:3px;color:#1a1a1a}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.lang-toggle{display:flex;border-radius:8px;overflow:hidden;border:.5px solid rgba(0,0,0,0.2)}
+.lang-btn{padding:5px 10px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:none;color:#666;transition:all .15s}
+.lang-btn.active{background:#185FA5;color:#fff}
+.icon-btn{background:none;border:none;cursor:pointer;color:#1a1a1a;position:relative;font-size:20px;display:flex;align-items:center}
+.badge{position:absolute;top:-5px;right:-6px;background:#E24B4A;color:#fff;font-size:9px;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;font-weight:600}
+/* SEARCH */
+.search-bar{padding:10px 16px 4px;background:#fff}
+.search-wrap{position:relative}
+.s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#aaa;font-size:16px}
+.search-input{width:100%;background:#f5f5f4;border:.5px solid rgba(0,0,0,0.12);border-radius:12px;padding:9px 14px 9px 36px;font-size:13px;color:#1a1a1a;outline:none;font-family:inherit}
+.search-input:focus{border-color:#185FA5}
+/* CATS */
+.cat-row{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;background:#fff}
+.cat-row::-webkit-scrollbar{display:none}
+.cat-btn{padding:6px 16px;border-radius:20px;border:.5px solid rgba(0,0,0,0.2);background:#fff;font-size:13px;cursor:pointer;white-space:nowrap;color:#666;transition:all .15s;flex-shrink:0}
+.cat-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+/* GRID */
+.grid-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px}
+.grid-count{font-size:12px;color:#aaa}
+.sort-select{font-size:12px;border:.5px solid rgba(0,0,0,0.12);border-radius:8px;padding:5px 8px;background:#fff;color:#1a1a1a;cursor:pointer;outline:none}
+.product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:4px 16px 100px}
+.product-card{cursor:pointer;border-radius:14px;overflow:hidden;border:.5px solid rgba(0,0,0,0.1);background:#fff;transition:transform .15s,box-shadow .15s}
+.product-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.1)}
+.p-img{width:100%;height:180px;display:flex;align-items:center;justify-content:center;position:relative;font-size:68px;transition:background .3s}
+.p-img img{width:100%;height:100%;object-fit:cover}
+.sale-tag{position:absolute;top:8px;left:8px;background:#8B6914;color:#FAC775;font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600}
+.c-wish{position:absolute;top:8px;right:8px;background:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;border:.5px solid rgba(0,0,0,0.1);cursor:pointer;transition:color .15s}
+.c-wish:hover{color:#E24B4A}
+.p-info{padding:10px 10px 12px}
+.p-title{font-size:13px;color:#1a1a1a;font-weight:500;margin-bottom:5px;line-height:1.35}
+.p-price{font-size:14px;color:#E24B4A;font-weight:600}
+.p-old{font-size:11px;color:#aaa;text-decoration:line-through;margin-left:5px}
+/* BOTTOM NAV */
+.bottom-nav{position:sticky;bottom:0;background:#fff;border-top:.5px solid rgba(0,0,0,0.1);display:flex;justify-content:space-around;padding:10px 0 16px;z-index:20}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;color:#aaa;font-size:10px;transition:color .15s;min-width:60px}
+.nav-item.active{color:#185FA5}
+.nav-item i{font-size:22px}
+/* DETAIL */
+.detail-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:.5px solid rgba(0,0,0,0.1);background:#fff;position:sticky;top:0;z-index:10}
+.back-btn{background:#f5f5f4;border:none;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#1a1a1a;font-size:18px}
+.preview-area{width:100%;height:260px;display:flex;align-items:center;justify-content:center;position:relative;transition:background .35s;background:#f5f5f4;font-size:90px}
+.preview-area img{width:100%;height:100%;object-fit:cover}
+.flash-tag{position:absolute;top:12px;left:12px;background:#E24B4A;color:#fff;font-size:11px;padding:4px 10px;border-radius:8px;font-weight:500;display:flex;align-items:center;gap:4px}
+.wish-fab{position:absolute;top:12px;right:12px;background:#fff;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#aaa;font-size:18px;transition:color .15s}
+.dots{position:absolute;bottom:10px;display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(128,128,128,0.35)}
+.dot.on{background:#185FA5;width:18px;border-radius:3px}
+.d-body{padding:16px 16px 100px}
+.price-row2{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.pnew{font-size:22px;font-weight:600;color:#E24B4A}
+.pold{font-size:14px;color:#aaa;text-decoration:line-through}
+.pdisc{background:#FCEBEB;color:#E24B4A;font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px}
+.pname{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:5px}
+.rating-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.stars{color:#EF9F27;font-size:13px}
+.sec-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.6px}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sel-name{font-size:13px;color:#185FA5;font-weight:500}
+.color-sec,.size-sec{margin-bottom:18px}
+.color-grid{display:flex;gap:10px;flex-wrap:wrap}
+.c-opt{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.c-wrap{width:48px;height:48px;border-radius:8px;border:2.5px solid transparent;padding:2px;transition:border-color .15s}
+.c-wrap.on{border-color:#185FA5}
+.c-swatch{width:100%;height:100%;border-radius:6px;border:.5px solid rgba(0,0,0,0.12)}
+.c-lbl{font-size:10px;color:#888;text-align:center;max-width:52px;line-height:1.3}
+.c-opt.on .c-lbl{color:#185FA5;font-weight:600}
+.size-guide{font-size:12px;color:#185FA5;cursor:pointer;text-decoration:underline}
+.sz-grid{display:flex;gap:8px;flex-wrap:wrap}
+.sz-btn{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:8px;border:.5px solid rgba(0,0,0,0.2);background:#fff;cursor:pointer;transition:all .15s;min-width:56px}
+.sz-btn:hover:not(.out){border-color:#185FA5}
+.sz-btn:hover:not(.out) .sz-n{color:#185FA5}
+.sz-btn.on{background:#185FA5;border-color:#185FA5}
+.sz-btn.on .sz-n{color:#fff}
+.sz-btn.on .sz-k{color:#B5D4F4}
+.sz-btn.out{background:#f5f5f4;cursor:not-allowed;opacity:.5}
+.sz-n{font-size:13px;font-weight:600;color:#1a1a1a}
+.sz-k{font-size:10px;color:#aaa;margin-top:2px}
+.qty-row2{display:flex;align-items:center;margin-bottom:16px}
+.qty-lbl{font-size:14px;color:#888;flex:1}
+.qty-ctrl{display:flex;align-items:center;gap:14px;background:#f5f5f4;border-radius:8px;padding:6px 14px}
+.q-btn{background:none;border:none;cursor:pointer;color:#1a1a1a;font-size:20px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.q-btn:hover{background:#ebebeb}
+.q-val{font-size:16px;font-weight:600;min-width:26px;text-align:center;color:#1a1a1a}
+.summary-box{background:#f5f5f4;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:#888;line-height:1.6}
+.summary-box .hi{color:#1a1a1a;font-weight:600}
+.summary-box .total{color:#E24B4A;font-weight:600}
+.act-row{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.btn-add{background:#fff;border:1.5px solid #185FA5;color:#185FA5;padding:14px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s;font-family:inherit}
+.btn-add:hover{background:#E6F1FB}
+.btn-buy{background:#E24B4A;border:none;color:#fff;padding:14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit}
+.btn-buy:hover{background:#A32D2D}
+/* TELEGRAM FLOAT BUTTON */
+/* PAYMENT MODAL */
+.pay-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0}
+.pay-modal-bg.hidden{display:none}
+.pay-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding:0 0 32px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pay-handle{width:40px;height:4px;border-radius:2px;background:#ddd;margin:12px auto 0}
+.pay-header{padding:14px 20px 12px;border-bottom:.5px solid rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:space-between}
+.pay-title{font-size:16px;font-weight:600;color:#1a1a1a}
+.pay-close{background:none;border:none;font-size:20px;cursor:pointer;color:#aaa}
+.pay-body{padding:16px 20px}
+.pay-bank-row{display:flex;align-items:center;gap:10px;background:#f0f7ff;border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.pay-bank-icon{width:44px;height:44px;border-radius:10px;background:#185FA5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;flex-shrink:0}
+.pay-bank-name{font-size:14px;font-weight:600;color:#1a1a1a}
+.pay-bank-acct{font-size:13px;color:#185FA5;font-weight:500;margin-top:2px;display:flex;align-items:center;gap:6px}
+.copy-btn{background:none;border:.5px solid #185FA5;color:#185FA5;border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer}
+.copy-btn:hover{background:#185FA5;color:#fff}
+.qr-section{text-align:center;margin-bottom:14px}
+.qr-section img{width:190px;height:190px;object-fit:contain;border-radius:12px;border:1px solid rgba(0,0,0,0.1);padding:6px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+.qr-section .no-qr{width:190px;height:190px;background:#f5f5f4;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:#aaa;font-size:13px}
+.pay-amount-box{background:#FCEBEB;border-radius:10px;padding:12px 16px;margin-bottom:14px;text-align:center}
+.pay-amount-label{font-size:12px;color:#888;margin-bottom:3px}
+.pay-amount-val{font-size:24px;font-weight:700;color:#E24B4A}
+.pay-note-row{background:#f5f5f4;border-radius:8px;padding:10px 14px;font-size:12px;color:#666;margin-bottom:14px;line-height:1.6}
+.pay-steps{font-size:12px;color:#888;margin-bottom:16px;line-height:1.8;padding:0 4px}
+.pay-steps li{margin-bottom:2px}
+.pay-confirm-btn{width:100%;background:#E24B4A;color:#fff;border:none;padding:15px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.pay-confirm-btn:hover{background:#A32D2D}
+/* INSTALL BUTTON */
+.install-fab{position:fixed;bottom:152px;right:14px;background:#1a1a1a;color:#fff;border:none;border-radius:28px;padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;display:none;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,0.35);z-index:50;font-family:inherit;transition:transform .15s}
+.install-fab:hover{transform:scale(1.05)}
+/* iOS INSTALL MODAL */
+.ios-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0}
+.ios-modal.hidden{display:none}
+.ios-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:420px;padding:20px 20px 36px}
+.ios-handle{width:40px;height:4px;border-radius:2px;background:#ddd;margin:0 auto 16px}
+.ios-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:4px}
+.ios-sub{font-size:12px;color:#888;text-align:center;margin-bottom:18px}
+.ios-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid rgba(0,0,0,0.08)}
+.ios-step:last-child{border:none}
+.ios-num{width:28px;height:28px;border-radius:50%;background:#185FA5;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ios-step-txt{font-size:13px;color:#333;line-height:1.4}
+.ios-icon-demo{font-size:20px}
+.ios-close{width:100%;margin-top:16px;background:#f0f0f0;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.tg-fab{position:fixed;bottom:90px;right:16px;width:52px;height:52px;background:#26A5E4;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(38,165,228,0.5);text-decoration:none;z-index:50;transition:transform .15s}
+.tg-fab:hover{transform:scale(1.1)}
+.tg-fab i{color:#fff;font-size:26px}
+.tg-tooltip{position:fixed;bottom:150px;right:16px;background:#1a1a1a;color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;pointer-events:none;z-index:51;white-space:nowrap;opacity:0;transition:opacity .2s}
+.tg-fab:hover + .tg-tooltip,.tg-tooltip.show{opacity:1}
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(70px);background:rgba(30,30,30,.92);color:#fff;padding:11px 22px;border-radius:14px;font-size:13px;font-weight:500;transition:transform .3s;z-index:99;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:60px 20px;color:#aaa;font-size:14px}
+/* CAROUSEL THUMBNAILS */
+.thumb-row{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;background:#f5f5f4}
+.thumb-row::-webkit-scrollbar{display:none}
+.thumb-item{width:54px;height:54px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;flex-shrink:0;position:relative}
+.thumb-item.on{border-color:#185FA5}
+.thumb-item img,.thumb-item video{width:100%;height:100%;object-fit:cover}
+.media-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.35);color:#fff;border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;z-index:5}
+.media-nav.prev{left:8px}.media-nav.next{right:8px}
+.media-counter{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.45);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">
+    <span id="sb-time">--:--</span>
+    <div style="display:flex;gap:6px;align-items:center"><i class="ti ti-wifi" style="font-size:14px"></i><i class="ti ti-battery-2" style="font-size:14px"></i></div>
+  </div>
+
+  <!-- LIST SCREEN -->
+  <div class="screen active" id="screen-list">
+    <div class="topbar">
+      <span class="brand" id="shop-name">KHERME</span>
+      <div class="topbar-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="ll-kh" onclick="setLang('kh')">ខ្មែរ</button>
+          <button class="lang-btn" id="ll-vi" onclick="setLang('vi')">Việt</button>
+        </div>
+        <button class="icon-btn"><i class="ti ti-shopping-bag" style="font-size:21px"></i><span class="badge" id="l-badge">0</span></button>
+      </div>
+    </div>
+    <div class="search-bar"><div class="search-wrap"><i class="ti ti-search s-icon"></i><input class="search-input" id="search-in" type="text" oninput="filterProds()"/></div></div>
+    <div class="cat-row" id="cat-row"></div>
+    <div class="grid-header"><span class="grid-count" id="grid-count"></span><select class="sort-select" id="sort-sel" onchange="renderGrid()"><option value="default" id="o-def"></option><option value="asc" id="o-asc"></option><option value="desc" id="o-desc"></option></select></div>
+    <div class="product-grid" id="product-grid"></div>
+    <div class="bottom-nav">
+      <button class="nav-item active"><i class="ti ti-home"></i><span id="nav-home"></span></button>
+      <button class="nav-item"><i class="ti ti-search"></i><span id="nav-search"></span></button>
+      <button class="nav-item"><i class="ti ti-heart"></i><span id="nav-fav"></span></button>
+      <button class="nav-item"><i class="ti ti-user"></i><span id="nav-acc"></span></button>
+    </div>
+  </div>
+
+  <!-- DETAIL SCREEN -->
+  <div class="screen" id="screen-detail">
+    <div class="detail-header">
+      <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+      <span class="brand" style="font-size:16px;letter-spacing:2px" id="d-shopname">KHERME</span>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="lang-toggle"><button class="lang-btn active" id="dl-kh" onclick="setLang('kh')">ខ្មែរ</button><button class="lang-btn" id="dl-vi" onclick="setLang('vi')">Việt</button></div>
+        <button class="icon-btn"><i class="ti ti-shopping-bag" style="font-size:21px"></i><span class="badge" id="d-badge">0</span></button>
+      </div>
+    </div>
+    <div class="preview-area" id="preview-area">
+      <svg id="tshirt" width="160" height="180" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
+        <path id="ts-body" d="M45 55 L15 70 L28 100 L45 92 L45 165 L115 165 L115 92 L132 100 L145 70 L115 55 C108 68 92 75 80 75 C68 75 52 68 45 55 Z" fill="#888780"/>
+        <path id="ts-collar" d="M80 75 C68 75 52 68 45 55 C52 52 60 50 80 50 C100 50 108 52 115 55 C108 68 92 75 80 75 Z" fill="#888780" opacity="0.8"/>
+        <path d="M45 90 L45 165 L115 165 L115 90 L110 95 L110 160 L50 160 L50 95 Z" fill="rgba(0,0,0,0.07)"/>
+        <text x="80" y="126" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.4)" font-family="Inter,sans-serif">KHERME</text>
+      </svg>
+      <div id="d-img-overlay" style="display:none;position:absolute;inset:0"><img id="d-img" style="width:100%;height:100%;object-fit:cover"/></div>
+      <div class="flash-tag"><i class="ti ti-bolt" style="font-size:12px"></i> <span id="d-flash">Flash Sale</span></div>
+      <button class="wish-fab" id="wish-fab" onclick="toggleWish()"><i class="ti ti-heart" id="wish-icon"></i></button>
+      <div class="dots"><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+    <div class="d-body">
+      <div class="price-row2"><span class="pnew" id="d-price"></span><span class="pold" id="d-old"></span><span class="pdisc" id="d-disc"></span></div>
+      <div class="pname" id="d-name"></div>
+      <div class="rating-row"><span class="stars">★★★★★</span><span style="font-size:12px;color:#888">4.9</span><span style="font-size:12px;color:#aaa" id="d-sold"></span></div>
+      <div class="color-sec"><div class="sec-head"><span class="sec-label" id="d-clbl"></span><span class="sel-name" id="d-csel"></span></div><div class="color-grid" id="d-cgrid"></div></div>
+      <div class="size-sec"><div class="sec-head"><span class="sec-label" id="d-slbl"></span><span class="size-guide" id="d-sguide"></span></div><div class="sz-grid" id="d-sgrid"></div></div>
+      <div class="qty-row2"><span class="qty-lbl" id="d-qlbl"></span><div class="qty-ctrl"><button class="q-btn" onclick="chQty(-1)">−</button><span class="q-val" id="d-qty">1</span><button class="q-btn" onclick="chQty(1)">+</button></div></div>
+      <div class="summary-box" id="d-summary"></div>
+      <div class="act-row">
+        <button class="btn-add" onclick="addCart()"><i class="ti ti-shopping-cart" style="font-size:15px"></i> <span id="d-bcart"></span></button>
+        <button class="btn-buy" onclick="buyNow()" id="d-bbuy"></button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goBack()"><i class="ti ti-home"></i><span id="d-nav-home"></span></button>
+      <button class="nav-item"><i class="ti ti-search"></i><span id="d-nav-search"></span></button>
+      <button class="nav-item"><i class="ti ti-heart"></i><span id="d-nav-fav"></span></button>
+      <button class="nav-item"><i class="ti ti-user"></i><span id="d-nav-acc"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="pay-modal-bg hidden" id="pay-modal" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-sheet">
+    <div class="pay-handle"></div>
+    <div class="pay-header">
+      <span class="pay-title" id="pm-title">ទូទាត់ / Thanh toán</span>
+      <button class="pay-close" onclick="closePayModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="pay-body">
+      <div class="pay-bank-row">
+        <div class="pay-bank-icon"><i class="ti ti-building-bank"></i></div>
+        <div>
+          <div class="pay-bank-name" id="pm-bank">ABA Bank</div>
+          <div class="pay-bank-acct">
+            <span id="pm-acct">—</span>
+            <button class="copy-btn" onclick="copyAcct()" id="pm-copy-btn">Copy</button>
+          </div>
+          <div style="font-size:12px;color:#888;margin-top:2px" id="pm-holder"></div>
+        </div>
+      </div>
+      <div class="qr-section" id="pm-qr-wrap">
+        <div class="no-qr"><i class="ti ti-qrcode" style="font-size:32px"></i><span id="pm-no-qr">មិនទាន់មាន QR</span></div>
+      </div>
+      <div class="pay-amount-box">
+        <div class="pay-amount-label" id="pm-amt-lbl">ចំនួនទូទាត់ / Số tiền cần chuyển</div>
+        <div class="pay-amount-val" id="pm-amount">0 ៛</div>
+      </div>
+      <div class="pay-note-row" id="pm-note-row"></div>
+      <ul class="pay-steps" id="pm-steps"></ul>
+      <button class="pay-confirm-btn" onclick="confirmPayment()">
+        <i class="ti ti-check"></i> <span id="pm-done-lbl">បានទូទាត់ / Đã chuyển tiền</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TELEGRAM BUTTON -->
+<a class="tg-fab" id="tg-fab" href="#" target="_blank" style="display:none"><i class="ti ti-brand-telegram"></i></a>
+<div class="tg-tooltip" id="tg-tooltip"></div>
+
+<!-- INSTALL APP BUTTON -->
+<button class="install-fab" id="install-fab" onclick="doInstall()">📲 Cài App</button>
+
+<!-- iOS INSTALL MODAL -->
+<div class="ios-modal hidden" id="ios-modal" onclick="closeIosModal(event)">
+  <div class="ios-sheet">
+    <div class="ios-handle"></div>
+    <div class="ios-title">📲 Cài KHERME về điện thoại</div>
+    <div class="ios-sub">Mở bằng Safari, làm theo 3 bước:</div>
+    <div class="ios-step">
+      <div class="ios-num">1</div>
+      <div class="ios-step-txt">Nhấn nút <b>Chia sẻ</b> <span class="ios-icon-demo">⬆️</span> ở thanh dưới màn hình</div>
+    </div>
+    <div class="ios-step">
+      <div class="ios-num">2</div>
+      <div class="ios-step-txt">Cuộn xuống, chọn <b>"Thêm vào màn hình chính"</b> (Add to Home Screen)</div>
+    </div>
+    <div class="ios-step">
+      <div class="ios-num">3</div>
+      <div class="ios-step-txt">Nhấn <b>Thêm</b> — icon KHERME sẽ xuất hiện trên màn hình</div>
+    </div>
+    <button class="ios-close" onclick="closeIosModal()">Đã hiểu ✓</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const colors=[
+  {kh:'ខ្មៅ',vi:'Đen',fill:'#1a1a1a',price:0},
+  {kh:'ស',vi:'Trắng',fill:'#f0f0f0',price:0},
+  {kh:'ខៀវ Navy',vi:'Xanh navy',fill:'#1B3A6B',price:20000},
+  {kh:'ក្រហម',vi:'Đỏ đô',fill:'#8B2020',price:20000},
+  {kh:'szem',vi:'Xám',fill:'#888780',price:0},
+  {kh:'បៃតង',vi:'Xanh lá',fill:'#3B6D11',price:20000},
+];
+const sizes=[{n:'S',kg:'40–50kg',ok:true},{n:'M',kg:'45–55kg',ok:true},{n:'L',kg:'56–62kg',ok:true},{n:'XL',kg:'63–70kg',ok:true},{n:'2XL',kg:'71–80kg',ok:true},{n:'3XL',kg:'81–90kg',ok:false}];
+const T={
+  search:{kh:'ស្វែងរកផលិតផល...',vi:'Tìm kiếm sản phẩm...'},
+  cats:{kh:['ទាំងអស់','ស្រី','បុរស','កុមារ','ថ្មី'],vi:['Tất cả','Nữ','Nam','Trẻ em','Mới']},
+  sdef:{kh:'តម្រៀប',vi:'Sắp xếp'},sasc:{kh:'ថ្លៃ↑',vi:'Giá tăng'},sdesc:{kh:'ថ្លៃ↓',vi:'Giá giảm'},
+  items:{kh:'ផលិតផល',vi:'sản phẩm'},flash:{kh:'Flash Sale',vi:'Flash Sale'},
+  clbl:{kh:'ពណ៌',vi:'Màu sắc'},cnone:{kh:'មិនទាន់ជ្រើស',vi:'Chưa chọn'},
+  slbl:{kh:'ទំហំ',vi:'Kích cỡ'},sguide:{kh:'ណែនាំ ↗',vi:'Hướng dẫn ↗'},
+  qlbl:{kh:'បរិមាណ',vi:'Số lượng'},sold:{kh:'• ២.១ ពាន់ លក់ហើយ',vi:'• 2.1k đã bán'},
+  s0:{kh:'សូមជ្រើសពណ៌ និងទំហំ',vi:'Vui lòng chọn màu và kích cỡ'},
+  scol:{kh:'ពណ៌',vi:'màu sắc'},ssiz:{kh:'ទំហំ',vi:'kích cỡ'},
+  pickcol:{kh:'សូមជ្រើសពណ៌',vi:'Vui lòng chọn màu sắc'},picksz:{kh:'សូមជ្រើសទំហំ',vi:'Vui lòng chọn kích cỡ'},
+  bcart:{kh:'កន្ត្រក',vi:'Giỏ'},bbuy:{kh:'ទិញឥឡូវ',vi:'Mua ngay'},
+  added:{kh:'✓ បានបន្ថែម',vi:'✓ Đã thêm vào giỏ'},
+  wished:{kh:'♥ យ',vi:'♥ Yêu thích'},unwished:{kh:'បានដក',vi:'Đã bỏ'},
+  sale:{kh:'លក់',vi:'Sale'},
+  navhome:{kh:'ផ្ទះ',vi:'Trang chủ'},navsrch:{kh:'ស្វែងរក',vi:'Tìm kiếm'},
+  navfav:{kh:'ចំណូលចិត្ត',vi:'Yêu thích'},navacc:{kh:'គណនី',vi:'Tài khoản'},
+  contact:{kh:'ទំនាក់ទំនងតាម Telegram',vi:'Liên hệ qua Telegram'},
+};
+
+let lang='kh',selCat=0,selColor=null,selSize=null,qty=1,cartCount=0,wished=false,curProd=null;
+let products=[],settings={telegram:'',shopName:'KHERME'};
+let filtered=[],curMediaIdx=0;
+
+const $=id=>document.getElementById(id);
+const t=k=>T[k][lang];
+const fmt=n=>parseInt(n).toLocaleString()+' ៛';
+
+function updateClock(){const now=new Date();$('sb-time').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');}
+updateClock();setInterval(updateClock,30000);
+
+async function init(){
+  try{const r=await fetch('/api/products');products=await r.json();}catch(e){}
+  try{const r=await fetch('/api/settings');settings=await r.json();}catch(e){}
+  filtered=[...products];
+  applySettings();
+  setLang('kh');
+}
+
+function applySettings(){
+  const name=settings.shopName||'KHERME';
+  $('shop-name').textContent=name;$('d-shopname').textContent=name;document.title=name+' — Fashion Shop';
+  const tg=settings.telegram;
+  if(tg){
+    $('tg-fab').href=tg;$('tg-fab').style.display='flex';
+    $('tg-tooltip').textContent=t('contact');
+  }else{$('tg-fab').style.display='none';}
+}
+
+function setLang(l){
+  lang=l;
+  ['ll-kh','dl-kh'].forEach(id=>{const e=$(id);if(e)e.classList.toggle('active',l==='kh');});
+  ['ll-vi','dl-vi'].forEach(id=>{const e=$(id);if(e)e.classList.toggle('active',l==='vi');});
+  $('search-in').placeholder=t('search');
+  $('o-def').textContent=t('sdef');$('o-asc').textContent=t('sasc');$('o-desc').textContent=t('sdesc');
+  ['nav-home','d-nav-home'].forEach(id=>{const e=$(id);if(e)e.textContent=t('navhome');});
+  ['nav-search','d-nav-search'].forEach(id=>{const e=$(id);if(e)e.textContent=t('navsrch');});
+  ['nav-fav','d-nav-fav'].forEach(id=>{const e=$(id);if(e)e.textContent=t('navfav');});
+  ['nav-acc','d-nav-acc'].forEach(id=>{const e=$(id);if(e)e.textContent=t('navacc');});
+  $('tg-tooltip').textContent=t('contact');
+  renderCats();renderGrid();
+  if($('screen-detail').classList.contains('active'))renderDetail();
+}
+
+function renderCats(){
+  const cats=T.cats[lang];
+  $('cat-row').innerHTML=cats.map((c,i)=>`<button class="cat-btn ${selCat===i?'active':''}" onclick="pickCat(${i})">${c}</button>`).join('');
+}
+function pickCat(i){selCat=i;filterProds();}
+
+function filterProds(){
+  const q=$('search-in').value.toLowerCase();
+  filtered=products.filter(p=>{
+    const inCat=selCat===0||p.cat===selCat;
+    const name=(p.kh+p.vi).toLowerCase();
+    return inCat&&(!q||name.includes(q));
+  });
+  renderGrid();renderCats();
+}
+
+function renderGrid(){
+  const sort=$('sort-sel').value;
+  let arr=[...filtered];
+  if(sort==='asc')arr.sort((a,b)=>a.price-b.price);
+  if(sort==='desc')arr.sort((a,b)=>b.price-a.price);
+  $('grid-count').textContent=arr.length+' '+t('items');
+  if(!arr.length){$('product-grid').innerHTML=`<div class="empty" style="grid-column:1/-1">${lang==='kh'?'គ្មានផលិតផល':'Không có sản phẩm'}</div>`;return;}
+  $('product-grid').innerHTML=arr.map(p=>`
+    <div class="product-card" onclick="openDetail(${p.id})">
+      <div class="p-img" style="background:${p.clr}22">
+        ${p.img ? (/\.(mp4|webm|mov)$/i.test(p.img) ? `<video src="${p.img}" style="width:100%;height:100%;object-fit:cover" autoplay muted loop playsinline></video>` : `<img src="${p.img}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/>`) : `<span style="font-size:68px">${p.em||'👕'}</span>`}
+        ${p.hot?`<span class="sale-tag">${t('sale')}</span>`:''}
+        <span class="c-wish" onclick="event.stopPropagation()"><i class="ti ti-heart"></i></span>
+      </div>
+      <div class="p-info">
+        <div class="p-title">${lang==='kh'?p.kh:p.vi}</div>
+        <div><span class="p-price">${fmt(p.price)}</span>${p.old?`<span class="p-old">${fmt(p.old)}</span>`:''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function openDetail(id){
+  curProd=products.find(p=>p.id===id);
+  selColor=null;selSize=null;qty=1;wished=false;
+  $('screen-list').classList.remove('active');
+  $('screen-detail').classList.add('active');
+  renderDetail();
+}
+function goBack(){$('screen-detail').classList.remove('active');$('screen-list').classList.add('active');}
+
+function renderDetail(){
+  if(!curProd)return;
+  const p=curProd;
+  const basePrice=p.price+(selColor!==null?colors[selColor].price:0);
+  $('d-flash').textContent=t('flash');
+  $('d-price').textContent=fmt(basePrice*qty);
+  $('d-old').textContent=p.old?fmt(p.old):'';
+  $('d-disc').textContent=p.old?`-${Math.round((1-p.price/p.old)*100)}%`:'';
+  $('d-name').textContent=lang==='kh'?p.kh:p.vi;
+  $('d-sold').textContent=t('sold');
+  $('d-clbl').textContent=t('clbl');
+  $('d-csel').textContent=selColor!==null?(lang==='kh'?colors[selColor].kh:colors[selColor].vi):t('cnone');
+  $('d-slbl').textContent=t('slbl');$('d-sguide').textContent=t('sguide');
+  $('d-qlbl').textContent=t('qlbl');$('d-qty').textContent=qty;
+  $('d-bcart').textContent=t('bcart');$('d-bbuy').textContent=t('bbuy');
+  $('wish-icon').style.color=wished?'#E24B4A':'';
+
+  // Product media carousel (supports multiple images/videos)
+  const media = (p.media && p.media.length) ? p.media : (p.img ? [p.img] : []);
+  curMediaIdx = 0;
+  renderDetailMedia(p, media, 0);
+
+  $('d-cgrid').innerHTML=colors.map((c,i)=>`
+    <div class="c-opt ${selColor===i?'on':''}" onclick="pickColor(${i})">
+      <div class="c-wrap ${selColor===i?'on':''}"><div class="c-swatch" style="background:${c.fill};${c.fill==='#f0f0f0'?'border:1px solid #ddd':''}"></div></div>
+      <span class="c-lbl">${lang==='kh'?c.kh:c.vi}${c.price>0?' +'+fmt(c.price):''}</span>
+    </div>`).join('');
+
+  $('d-sgrid').innerHTML=sizes.map((s,i)=>`
+    <button class="sz-btn ${!s.ok?'out':''} ${selSize===i?'on':''}" onclick="${s.ok?`pickSize(${i})`:''}" ${!s.ok?'disabled':''}>
+      <span class="sz-n">${s.n}</span><span class="sz-k">${s.kg}</span>
+    </button>`).join('');
+
+  updateSummary();
+  if(selColor!==null){$('ts-body').setAttribute('fill',colors[selColor].fill);$('ts-collar').setAttribute('fill',colors[selColor].fill);$('preview-area').style.background=colors[selColor].fill+'28';}
+}
+
+function pickColor(i){selColor=i;renderDetail();}
+function pickSize(i){selSize=i;renderDetail();}
+function chQty(d){qty=Math.max(1,Math.min(10,qty+d));renderDetail();}
+
+function updateSummary(){
+  const el=$('d-summary');
+  if(selColor===null&&selSize===null){el.innerHTML=t('s0');return;}
+  if(selColor===null){el.innerHTML=`${lang==='kh'?'សូមជ្រើស':'Vui lòng chọn'} <span class="hi">${t('scol')}</span>`;return;}
+  if(selSize===null){
+    const cn=lang==='kh'?colors[selColor].kh:colors[selColor].vi;
+    el.innerHTML=`${lang==='kh'?'ពណ៌':'Màu'}: <span class="hi">${cn}</span> — ${lang==='kh'?'សូមជ្រើស':'vui lòng chọn'} <span class="hi">${t('ssiz')}</span>`;return;
+  }
+  const cn=lang==='kh'?colors[selColor].kh:colors[selColor].vi;
+  const total=(curProd.price+colors[selColor].price)*qty;
+  el.innerHTML=`<span class="hi">${cn}</span> · Size <span class="hi">${sizes[selSize].n}</span> (${sizes[selSize].kg}) · <span class="hi">${qty}</span> = <span class="total">${fmt(total)}</span>`;
+}
+
+function showToast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
+function validate(){if(selColor===null){showToast(t('pickcol'));return false;}if(selSize===null){showToast(t('picksz'));return false;}return true;}
+
+function addCart(){if(!validate())return;cartCount+=qty;$('l-badge').textContent=cartCount;$('d-badge').textContent=cartCount;showToast(t('added'));}
+
+function buyNow(){
+  if(!validate()) return;
+  const pay = settings.payment || {};
+  const total = (curProd.price + colors[selColor].price) * qty;
+  const cn = lang==='kh'?colors[selColor].kh:colors[selColor].vi;
+  // Fill modal
+  $('pm-bank').textContent = pay.bank || 'ABA Bank';
+  $('pm-acct').textContent = pay.account || '—';
+  $('pm-holder').textContent = pay.name || '';
+  $('pm-amount').textContent = parseInt(total).toLocaleString() + ' ៛';
+  // QR
+  if(pay.qr){
+    $('pm-qr-wrap').innerHTML=`<img src="${pay.qr}" alt="QR"/>`;
+  } else {
+    $('pm-qr-wrap').innerHTML=`<div class="no-qr"><i class="ti ti-qrcode" style="font-size:32px"></i><span>${lang==='kh'?'មិនទាន់មាន QR':'Chưa có QR'}</span></div>`;
+  }
+  // Note
+  const noteTxt = pay.note ? `📋 ${lang==='kh'?'ចំណាំ':'Ghi chú'}: <b>${pay.note}</b> | ${lang==='kh'?'ផលិតផល':'SP'}: ${curProd[lang]} · ${cn} · ${sizes[selSize].n} · x${qty}` : `${lang==='kh'?'ផលិតផល':'Sản phẩm'}: ${curProd[lang]} · ${cn} · ${sizes[selSize].n} · x${qty}`;
+  $('pm-note-row').innerHTML = noteTxt;
+  // Steps
+  const steps = lang==='kh'
+    ? ['<li>1. បើ App ABA/Bakong/KHQR របស់អ្នក</li>','<li>2. ស្កេន QR ខាងលើ ឬបញ្ចូលលេខគណនី</li>','<li>3. វាយចំនួនទឹកប្រាក់ ហើយចុចផ្ទេរ</li>','<li>4. ផ្ញើ Screenshot ទៅ Telegram ហ្វែន</li>']
+    : ['<li>1. Mở app ABA/Bakong/KHQR của bạn</li>','<li>2. Quét QR trên hoặc nhập số tài khoản</li>','<li>3. Nhập số tiền và chuyển khoản</li>','<li>4. Gửi ảnh màn hình chuyển khoản qua Telegram</li>'];
+  $('pm-steps').innerHTML = steps.join('');
+  $('pay-modal').classList.remove('hidden');
+}
+
+function closePayModal(){ $('pay-modal').classList.add('hidden'); }
+
+function copyAcct(){
+  const acct = (settings.payment||{}).account||'';
+  if(!acct) return;
+  navigator.clipboard.writeText(acct).then(()=>showToast(lang==='kh'?'✓ បានចម្លងលេខគណនី':'✓ Đã copy số TK'));
+}
+
+function confirmPayment(){
+  closePayModal();
+  cartCount += qty;
+  $('l-badge').textContent=cartCount;
+  $('d-badge').textContent=cartCount;
+  const msg = lang==='kh'
+    ? '🙏 អរគុណ! សូមផ្ញើ Screenshot ការទូទាត់ទៅ Telegram ហ្វែន'
+    : '🙏 Cảm ơn! Vui lòng gửi ảnh chuyển khoản qua Telegram';
+  showToast(msg);
+  // If telegram is set, open it
+  if(settings.telegram){ setTimeout(()=>window.open(settings.telegram,'_blank'), 1500); }
+}
+function toggleWish(){wished=!wished;$('wish-icon').style.color=wished?'#E24B4A':'';showToast(wished?t('wished'):t('unwished'));}
+
+function renderDetailMedia(p, media, idx) {
+  curMediaIdx = idx;
+  const area = $('preview-area');
+  const overlay = $('d-img-overlay');
+  const shirt = $('tshirt');
+  if (!media.length) {
+    overlay.style.display='none'; overlay.innerHTML=''; shirt.style.display='block';
+  } else {
+    overlay.style.display='block'; shirt.style.display='none';
+    const url = media[idx];
+    const isVid = /\.(mp4|webm|mov)$/i.test(url);
+    if (isVid) {
+      overlay.innerHTML = `<video src="${url}" style="width:100%;height:100%;object-fit:cover" loop playsinline controls></video>`;
+    } else {
+      overlay.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover"/>`;
+    }
+    // Nav arrows
+    if (media.length > 1) {
+      overlay.innerHTML += `
+        <button class="media-nav prev" onclick="navMedia(${idx-1})" ${idx===0?'style="opacity:.3;pointer-events:none"':''}>‹</button>
+        <button class="media-nav next" onclick="navMedia(${idx+1})" ${idx===media.length-1?'style="opacity:.3;pointer-events:none"':''}>›</button>
+        <span class="media-counter">${idx+1}/${media.length}</span>`;
+    }
+  }
+  // Update dots
+  $('preview-area').querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+  // Thumbnail strip
+  let thumbRow = $('d-thumb-row');
+  if (!thumbRow) {
+    thumbRow = document.createElement('div');
+    thumbRow.id = 'd-thumb-row';
+    thumbRow.className = 'thumb-row';
+    $('preview-area').parentNode.insertBefore(thumbRow, $('d-body'));
+  }
+  if (media.length > 1) {
+    thumbRow.style.display='flex';
+    thumbRow.innerHTML = media.map((url,i)=>{
+      const isVid=/\.(mp4|webm|mov)$/i.test(url);
+      const inner = isVid
+        ? `<video src="${url}" muted></video>`
+        : `<img src="${url}"/>`;
+      return `<div class="thumb-item ${i===idx?'on':''}" onclick="navMedia(${i})">${inner}</div>`;
+    }).join('');
+  } else {
+    thumbRow.style.display='none';
+  }
+}
+
+function navMedia(idx) {
+  if (!curProd) return;
+  const media = (curProd.media && curProd.media.length) ? curProd.media : (curProd.img ? [curProd.img] : []);
+  if (idx < 0 || idx >= media.length) return;
+  renderDetailMedia(curProd, media, idx);
+}
+
+init();
+
+// ===== PWA INSTALL =====
+let _deferredPrompt = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+function showInstallFab() {
+  if (!isStandalone) {
+    const fab = document.getElementById('install-fab');
+    if (fab) fab.style.display = 'flex';
+  }
+}
+
+async function doInstall() {
+  if (isIOS) {
+    document.getElementById('ios-modal').classList.remove('hidden');
+    return;
+  }
+  if (_deferredPrompt) {
+    _deferredPrompt.prompt();
+    const { outcome } = await _deferredPrompt.userChoice;
+    _deferredPrompt = null;
+    if (outcome === 'accepted') {
+      document.getElementById('install-fab').style.display = 'none';
+    }
+  }
+}
+
+function closeIosModal(e) {
+  if (!e || e.target === document.getElementById('ios-modal') || e.target.classList.contains('ios-close')) {
+    document.getElementById('ios-modal').classList.add('hidden');
+  }
+}
+
+// Android/Desktop: catch install prompt
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  showInstallFab();
+});
+
+// iOS: always show install button
+if (isIOS && !isStandalone) showInstallFab();
+
+// Hide after install
+window.addEventListener('appinstalled', () => {
+  const fab = document.getElementById('install-fab');
+  if (fab) fab.style.display = 'none';
+});
+
+// Register Service Worker for PWA install
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
