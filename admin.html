@@ -254,15 +254,10 @@ body{font-family:'Inter',sans-serif;background:#f4f3ef;min-height:100vh;color:#1
         <div id="tiktok-status" style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.7);display:none"></div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" id="lbl-name-kh">ឈ្មោះ (ខ្មែរ)</label>
-          <input class="form-input" id="f-kh" placeholder="ឈ្មោះផលិតផលជាភាសាខ្មែរ"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" id="lbl-name-vi">ឈ្មោះ (Việt)</label>
-          <input class="form-input" id="f-vi" placeholder="Tên sản phẩm tiếng Việt"/>
-        </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-name-kh">ឈ្មោះផលិតផល / Tên sản phẩm</label>
+        <input class="form-input" id="f-kh" placeholder="ឈ្មោះផលិតផល..."/>
+        <input type="hidden" id="f-vi" value=""/>
       </div>
 
       <!-- VND → KHR converter -->
@@ -282,15 +277,10 @@ body{font-family:'Inter',sans-serif;background:#f4f3ef;min-height:100vh;color:#1
         <div style="font-size:11px;color:#aaa;margin-top:4px">Tỷ giá: 20.000₫ = 4.000៛ (1₫ = 0,2៛)</div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" id="lbl-price">តម្លៃ (៛) — hoặc nhập thẳng Riel</label>
-          <input class="form-input" id="f-price" type="number" placeholder="ឧ. 150000" oninput="khrToVnd()"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" id="lbl-old-price">តម្លៃចាស់ (0 = គ្មាន)</label>
-          <input class="form-input" id="f-old" type="number" placeholder="0"/>
-        </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-price">តម្លៃ (៛) — hoặc nhập thẳng Riel</label>
+        <input class="form-input" id="f-price" type="number" placeholder="ឧ. 150000" oninput="khrToVnd()"/>
+        <input type="hidden" id="f-old" value="0"/>
       </div>
 
       <div class="form-group">
