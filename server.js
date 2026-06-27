@@ -155,10 +155,11 @@ http.createServer((req,res)=>{
         const{url:tkUrl}=JSON.parse(body);if(!tkUrl)throw new Error('No URL');
         const{data:html,finalUrl}=await fetchUrl(tkUrl);
         const info=parseTikTokHtml(html);
-        let mainImg='';if(info.img)mainImg=await downloadImage(info.img,finalUrl||tkUrl);
-        const extraLocal=[];for(const eu of(info.extraImgs||[]).slice(0,3)){if(eu&&eu!==info.img){const l=await downloadImage(eu,finalUrl||tkUrl);if(l)extraLocal.push(l);}}
+        // Dùng link ảnh TikTok trực tiếp (không tải về server — TikTok chặn bot download)
+        const mainImg=info.img||'';
+        const extraImgs=(info.extraImgs||[]).filter(eu=>eu&&eu!==info.img).slice(0,3);
         const[titleVi,titleKh]=await Promise.all([translateText(info.title,'vi'),translateText(info.title,'km')]);
-        const media=[mainImg,...extraLocal].filter(Boolean);
+        const media=[mainImg,...extraImgs].filter(Boolean);
         res.writeHead(200,{'Content-Type':'application/json'});
         res.end(JSON.stringify({ok:true,title_vi:titleVi||info.title,title_kh:titleKh||info.title,price_vnd:info.priceVnd,price_khr:Math.round((info.priceVnd||0)*0.2),img:media[0]||'',media}));
       }catch(e){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({ok:false,error:e.message}));}
