@@ -734,9 +734,9 @@ async function loadGallery() {
 
 function saveProduct() {
   const kh = document.getElementById('f-kh').value.trim();
-  const vi = document.getElementById('f-vi').value.trim();
+  const vi = kh; // dùng tên Khmer luôn
   const price = parseInt(document.getElementById('f-price').value) || 0;
-  if (!kh || !vi || !price) { showToast(lang==='kh'?'សូមបំពេញព័ត៌មានឱ្យបរិបូរណ៍!':'Vui lòng điền đầy đủ!'); return; }
+  if (!kh || !price) { showToast(lang==='kh'?'សូមបំពេញឈ្មោះ និងតម្លៃ!':'Vui lòng điền tên và giá!'); return; }
   // Also add manually-typed URL if any and not already in list
   const manualUrl = document.getElementById('f-img').value.trim();
   if (manualUrl && !prodMedia.includes(manualUrl)) prodMedia.unshift(manualUrl);
@@ -806,6 +806,11 @@ async function importFromTikTok() {
       return;
     }
 
+    // Nếu không lấy được tên (TikTok block link rút gọn)
+    if (!data.title_kh && !data.price_khr) {
+      status.innerHTML = '⚠️ TikTok chặn link rút gọn. Hãy dùng link đầy đủ: mở TikTok Shop → sản phẩm → chia sẻ → <b>Sao chép liên kết</b> (link dài).';
+      return;
+    }
     status.textContent = '✅ Đã lấy được thông tin! Đang điền vào form...';
 
     // Điền tên sản phẩm
@@ -825,7 +830,7 @@ async function importFromTikTok() {
       loadGallery();
       status.textContent = `✅ Xong! Đã import ${data.media.length} ảnh + dịch sang Khmer tự động 🎉`;
     } else {
-      status.textContent = '⚠️ Import một phần (không lấy được ảnh). Vui lòng tải ảnh thủ công.';
+      status.innerHTML = '📷 <b>Ảnh:</b> Vào TikTok → giữ ảnh → "Sao chép liên kết ảnh" → dán vào ô URL bên dưới. Hoặc chụp màn hình & upload.';
     }
 
     // Reset URL input
