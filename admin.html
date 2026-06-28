@@ -384,6 +384,35 @@ let editId = null;
 let hotOn = false;
 let selEmoji = '👕';
 
+// ===== WEB SHARE TARGET =====
+function handleShareTarget() {
+  const params = new URLSearchParams(window.location.search);
+  const sharedUrl = params.get('url') || '';
+  const sharedTitle = params.get('title') || params.get('text') || '';
+  if (!sharedUrl && !sharedTitle) return;
+
+  // Xoá params khỏi URL (gọn URL)
+  history.replaceState({}, '', '/admin.html');
+
+  // Mở form thêm sản phẩm sau khi data load xong
+  setTimeout(() => {
+    openAdd();
+    if (sharedTitle) {
+      document.getElementById('f-kh').value = sharedTitle;
+      document.getElementById('translate-status').textContent = '← Nhấn 🌐 Dịch để dịch sang Khmer';
+      document.getElementById('translate-status').style.color = '#185FA5';
+    }
+    if (sharedUrl) {
+      // Hiện banner hướng dẫn
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#FFF7ED;border:1px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#92400E;line-height:1.5';
+      banner.innerHTML = `📤 <b>Shared từ TikTok:</b> <span style="word-break:break-all;color:#185FA5">${sharedUrl}</span><br>👉 Upload ảnh sản phẩm bên dưới, điền tên rồi nhấn <b>Lưu</b>.`;
+      const modalBody = document.querySelector('.modal-body');
+      if (modalBody) modalBody.insertBefore(banner, modalBody.firstChild);
+    }
+  }, 500);
+}
+
 async function loadAll() {
   try { const r = await fetch('/api/products'); products = await r.json(); } catch(e) { products=[]; }
   try { const r = await fetch('/api/settings'); settings = await r.json(); } catch(e) {}
@@ -901,7 +930,7 @@ const _origOpenEdit = openEdit;
 openEdit = function(p) { _origOpenEdit(p); const vnd = Math.round((p.price||0)/VND_TO_KHR); document.getElementById('f-vnd').value = vnd||''; document.getElementById('vnd-preview').textContent = p.price ? parseInt(p.price).toLocaleString()+' ៛' : '—'; };
 
 setLang('kh');
-loadAll();
+loadAll().then(() => handleShareTarget());
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
