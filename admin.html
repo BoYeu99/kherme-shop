@@ -238,25 +238,13 @@ body{font-family:'Inter',sans-serif;background:#f4f3ef;min-height:100vh;color:#1
     </div>
     <div class="modal-body">
 
-      <!-- TIKTOK IMPORT -->
-      <div id="tiktok-import-box" style="background:linear-gradient(135deg,#010101 0%,#1a1a2e 100%);border-radius:12px;padding:14px 16px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" fill="#fff"/></svg>
-          <span style="color:#fff;font-weight:700;font-size:14px">Import từ TikTok Shop</span>
-          <span style="background:#fe2c55;color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600">TỰ ĐỘNG</span>
-        </div>
-        <div style="display:flex;gap-8px;gap:8px">
-          <input id="tiktok-url" placeholder="Dán link sản phẩm TikTok Shop vào đây..." style="flex:1;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;outline:none;font-family:inherit" oninput="this.style.borderColor=this.value?'#fe2c55':'rgba(255,255,255,0.25)'"/>
-          <button onclick="importFromTikTok()" id="tiktok-import-btn" style="background:#fe2c55;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:6px;flex-shrink:0">
-            <span id="tiktok-btn-icon">⚡</span> <span id="tiktok-btn-text">Tải về</span>
-          </button>
-        </div>
-        <div id="tiktok-status" style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.7);display:none"></div>
-      </div>
-
       <div class="form-group">
         <label class="form-label" id="lbl-name-kh">ឈ្មោះផលិតផល / Tên sản phẩm</label>
-        <input class="form-input" id="f-kh" placeholder="ឈ្មោះផលិតផល..."/>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <input class="form-input" id="f-kh" placeholder="Nhập tên bằng tiếng Việt rồi nhấn Dịch →" style="flex:1"/>
+          <button onclick="translateName()" id="translate-btn" style="background:#185FA5;color:#fff;border:none;border-radius:10px;padding:0 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0">🌐 Dịch</button>
+        </div>
+        <div id="translate-status" style="font-size:11px;color:#888;margin-top:4px"></div>
         <input type="hidden" id="f-vi" value=""/>
       </div>
 
@@ -775,11 +763,40 @@ function showToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-// ===== TIKTOK IMPORT =====
+// ===== DỊCH TÊN SANG KHMER =====
+async function translateName() {
+  const input = document.getElementById('f-kh');
+  const text = input.value.trim();
+  if (!text) { showToast('Nhập tên sản phẩm trước!'); return; }
+  const btn = document.getElementById('translate-btn');
+  const status = document.getElementById('translate-status');
+  btn.disabled = true; btn.textContent = '⏳';
+  status.textContent = 'Đang dịch...';
+  try {
+    const q = encodeURIComponent(text);
+    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=km&dt=t&q=${q}`);
+    const data = await res.json();
+    const translated = data[0].map(s => s[0]).join('');
+    if (translated && translated !== text) {
+      input.value = translated;
+      status.textContent = `✓ Đã dịch từ: "${text}"`;
+      status.style.color = '#3D9B3D';
+    } else {
+      status.textContent = 'Không dịch được, giữ nguyên.';
+      status.style.color = '#888';
+    }
+  } catch(e) {
+    status.textContent = '❌ Lỗi dịch. Kiểm tra mạng!';
+    status.style.color = '#E24B4A';
+  } finally {
+    btn.disabled = false; btn.textContent = '🌐 Dịch';
+  }
+}
+
+// (TikTok import removed — TikTok blocks all server-side scraping)
 async function importFromTikTok() {
-  const tkUrl = document.getElementById('tiktok-url').value.trim();
-  if (!tkUrl) { showToast('Vui lòng dán link TikTok Shop!'); return; }
-  if (!tkUrl.startsWith('http')) { showToast('Link không hợp lệ!'); return; }
+  const tkUrl = document.getElementById('tiktok-url')?.value?.trim();
+  if (!tkUrl) return;
 
   const btn = document.getElementById('tiktok-import-btn');
   const btnIcon = document.getElementById('tiktok-btn-icon');
